@@ -1,0 +1,4 @@
+## 2024-05-24 - Path Traversal in GitHub Release Asset Download
+**Vulnerability:** The application downloaded GitHub release assets and used the asset's name directly to construct the destination file path (`tempPath.filePath(info.fileName)`). An attacker controlling the GitHub repository or intercepting the API response could provide a malicious asset name like `../../../AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup/malware.exe`, leading to arbitrary file write.
+**Learning:** Even when interacting with trusted APIs (like GitHub), data that is used to construct file paths must be sanitized. The asset name from the JSON response should not be trusted as a safe file name.
+**Prevention:** Use `QFileInfo(fileName).fileName()` to extract only the base name of the file, stripping any directory traversal characters (`../`, `/`, `\`), before concatenating it with the target directory.

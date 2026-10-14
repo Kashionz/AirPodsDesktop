@@ -411,7 +411,14 @@ bool DownloadInstall(const ReleaseInfo &info, const FnProgress &progressCallback
         return false;
     }
 
-    const QString filePath = QFileInfo{tempPath.filePath(info.fileName)}.absoluteFilePath();
+    // Sanitize the file name to prevent path traversal vulnerabilities
+    const QString safeFileName = QFileInfo{info.fileName}.fileName();
+    if (safeFileName.isEmpty()) {
+        LOG(Warn, "DownloadInstall: File name is empty after sanitization.");
+        return false;
+    }
+
+    const QString filePath = QFileInfo{tempPath.filePath(safeFileName)}.absoluteFilePath();
 
     LOG(Info, "DownloadInstall: Ready to download to '{}'.", filePath);
 
